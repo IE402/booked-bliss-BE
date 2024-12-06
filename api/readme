@@ -1,0 +1,8 @@
+create db:
+npx prisma db push
+set up mongo:
+1. Nếu MongoDB đang chạy, bạn cần dừng nó trước khi thực hiện bước tiếp theo.
+`net stop/start MongoDB`
+2. `mongod --replSet "rs0" --bind_ip localhost`
+3. `rs.initiate()`
+

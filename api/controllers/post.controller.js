@@ -3,30 +3,55 @@ import jwt from "jsonwebtoken";
 
 export const getPosts = async (req, res) => {
     const query = req.query;
-    try {
-        const posts = await prisma.post.findMany({
-            where: {
-                city: query.city || undefined,
-                type: query.type || undefined,
-                property: query.property || undefined,
-                bedroom: parseInt(query.bedroom) || undefined,
-                price: {
-                    gte: parseInt(query.minPrice) || 0,
-                    lte: parseInt(query.maxprice) || 10000000,
-                }
-            }
-        });
-        
-        // setTimeout(() => {
-        //     res.status(200).json(posts);
-        // }, 3000);
-        res.status(200).json(posts)
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "Failed to get posts" })
-    }
-}
 
+    // Xây dựng đối tượng where để lọc bài viết nếu có query parameters
+    const where = {};
+
+    // Lọc theo city nếu có
+    if (query.city) where.city = query.city;
+
+    // Lọc theo type nếu có
+    if (query.type) where.type = query.type;
+
+    // Lọc theo property nếu có
+    if (query.property) where.property = query.property;
+
+    // Lọc theo bedroom nếu có
+    if (query.bedroom) where.bedroom = parseInt(query.bedroom);
+
+    // Lọc theo price nếu có minPrice hoặc maxPrice
+    if (query.minPrice || query.maxPrice) {
+        where.price = {
+            gte: query.minPrice ? parseInt(query.minPrice) : 0,
+            lte: query.maxPrice ? parseInt(query.maxPrice) : 20000000,
+        };
+    }
+
+    try {
+        // Nếu không có query, Prisma sẽ trả về tất cả bài viết
+        const posts = await prisma.post.findMany({
+            where: Object.keys(where).length > 0 ? where : undefined, // Nếu có query mới lọc
+            orderBy: {
+                createdAt: 'desc', // Sắp xếp theo thời gian tạo giảm dần
+            },
+            include: {
+                postDetail: true, // Lấy thêm chi tiết bài viết
+                user: {
+                    select: {
+                        username: true,
+                        avatar: true, // Lấy thông tin người đăng bài
+                    },
+                },
+            },
+        });
+
+        // Trả về danh sách bài viết sau khi lọc
+        res.status(200).json(posts);
+    } catch (err) {
+        console.error("Error fetching posts:", err);
+        res.status(500).json({ message: "Failed to get posts" });
+    }
+};
 export const getPost = async (req, res) => {
     const id = req.params.id;
 
@@ -99,23 +124,27 @@ export const getPost = async (req, res) => {
 
 export const addPost = async (req, res) => {
     const body = req.body;
-    const tokenUserId = req.userId;
+    console.log("----------------",body);
+    const tokenUserId = req.body.userId;
 
     try {
         const newPost = await prisma.post.create({
             data: {
                 ...body.postData,
-                userId: tokenUserId,
+                // userId: tokenUserId,
                 // createdAt: new Date(Date.now() + 7 * 60 * 60 * 1000),
                 postDetail: {
                     create: body.postDetail,
+                },
+                user: {
+                    connect: { id: tokenUserId },
                 }
             },
         });
         res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.status(500).json({ message: "Failed to create post" });
+        res.status(500).json({ message: "Failed to create post",tokenUserId });
     }
 }
 

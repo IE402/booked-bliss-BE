@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma.js"
 import bcrypt from "bcrypt"
+import { verifyToken } from "../middleware/verifyToken.js"
 
 export const getUsers = async (req, res) => {
     console.log("it works")

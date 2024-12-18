@@ -52,6 +52,105 @@ export const getPosts = async (req, res) => {
         res.status(500).json({ message: "Failed to get posts" });
     }
 };
+export const savePost = async (req, res) => {
+    const userId = req.body.userId;
+    const postId = req.body.postId;
+
+    try {
+        // Kiểm tra xem user này đã lưu bài viết có id này chưa
+        const existingSavedPost = await prisma.savedPost.findUnique({
+            where: {
+                userId_postId: {
+                    userId: userId,
+                    postId: postId,
+                }
+            }
+        });
+
+        if (existingSavedPost) {
+            return res.status(400).json({ message: "You have already saved this post." });
+        }
+
+        // Nếu chưa lưu, tạo mới một SavedPost
+        const savedPost = await prisma.savedPost.create({
+            data: {
+                userId: userId,
+                postId: postId,
+            }
+        });
+
+        return res.status(201).json({ message: "Post saved successfully.", savedPost });
+    } catch (error) {
+        console.error("Error saving post:", error);
+        return res.status(500).json({ message: "Internal server error." });
+    }
+};
+
+export const getAllSavedPostsByUser = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Tìm tất cả các SavedPost của người dùng này
+        const savedPosts = await prisma.savedPost.findMany({
+            where: {
+                userId: userId
+            },
+            include: {
+                post: true,  // Bao gồm thông tin về bài đăng liên quan (Post)
+            }
+        });
+
+        // Kiểm tra nếu không tìm thấy bất kỳ bài đăng đã lưu nào
+        if (savedPosts.length === 0) {
+            return res.status(404).json({ message: "No saved posts found for this user." });
+        }
+        // Trả về danh sách bài viết đã lưu
+        const savedPostResponse = savedPosts.map((savedPost) => savedPost.post);
+
+        return res.status(200).json(savedPostResponse );
+    } catch (error) {
+        console.error("Error fetching saved posts:", error);
+        return res.status(500).json({ message: "Internal server error." });
+    }
+};
+
+
+export const getAllPostsByUser = async (req,res) => {
+    const userId = req.params.userId;
+
+    // Kiểm tra xem user này đã lưu bài viết nào chưa
+    
+    try {
+        const posts = await prisma.post.findMany({
+            where: {
+                userId: userId
+            },
+            orderBy: {
+                createdAt: 'desc', // Sắp xếp theo thời gian tạo giảm dần
+            },
+            include: {
+                postDetail: true, // Lấy thêm chi tiết bài viết
+                user: {
+                    select: {
+                        username: true,
+                        avatar: true, // Lấy thông tin người đăng bài
+                    },
+                },
+            },
+        });
+    res.status(200).json(posts);
+
+
+    } catch (error) {
+        console.error("Error fetching saved posts:", error);
+        return res.status(500).json({ message: "Internal server error." });
+    }
+
+    // Trả về danh sách bài viết sau khi lọc
+
+}
+
+
 export const getPost = async (req, res) => {
     const id = req.params.id;
 

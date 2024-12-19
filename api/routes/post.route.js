@@ -1,11 +1,12 @@
 import express from "express";
-import { getPosts, getPost, addPost, updatePost, deletePost, savePost, getAllSavedPostsByUser, getAllPostsByUser} from "../controllers/post.controller.js";
+import { getPosts, getPost, addPost, updatePost, deletePost, savePost, getAllSavedPostsByUser, getAllPostsByUser, CountPostsByCity} from "../controllers/post.controller.js";
 import {verifyToken} from "../middleware/verifyToken.js"
 
 const router = express.Router()
 
 router.get("/", getPosts)
 router.get("/:id", getPost)
+router.get("/city/count", CountPostsByCity)
 router.post("/", verifyToken, addPost)
  router.get("/getByUser/:id", getAllPostsByUser)  
 router.post("/savePost", savePost)

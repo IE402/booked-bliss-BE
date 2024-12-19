@@ -39,6 +39,8 @@ export const getPosts = async (req, res) => {
                 user: {
                     select: {
                         username: true,
+                        fullName: true,
+                        phone: true,
                         avatar: true, // Lấy thông tin người đăng bài
                     },
                 },
@@ -52,6 +54,30 @@ export const getPosts = async (req, res) => {
         res.status(500).json({ message: "Failed to get posts" });
     }
 };
+export const CountPostsByCity = async (req, res) => {
+    try {
+        // Lấy danh sách tỉnh/thành phố và số bài viết
+        const cities = await prisma.post.groupBy({
+            by: ['city'],  // nhóm theo trường 'city'
+            _count: {       // đếm số lượng bài viết
+                id: true,   // đếm theo trường 'id'
+            },
+        });
+
+        // Trả về danh sách tỉnh/thành phố và số bài viết
+        const result = cities.map(city => ({
+            city: city.city,
+            postCount: city._count.id, // số bài viết theo thành phố
+        }));
+        
+        res.status(200).json(result);
+        
+    } catch (error) {
+        console.error("Error counting posts by city:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 export const savePost = async (req, res) => {
     const userId = req.body.userId;
     const postId = req.body.postId;
@@ -87,7 +113,7 @@ export const savePost = async (req, res) => {
 };
 
 export const getAllSavedPostsByUser = async (req, res) => {
-    const userId = req.params.userId;
+    const userId = req.params.id;
 
     try {
         // Tìm tất cả các SavedPost của người dùng này
@@ -116,7 +142,7 @@ export const getAllSavedPostsByUser = async (req, res) => {
 
 
 export const getAllPostsByUser = async (req,res) => {
-    const userId = req.params.userId;
+    const userId = req.params.id;
 
     // Kiểm tra xem user này đã lưu bài viết nào chưa
     

@@ -10,7 +10,7 @@ router.get("/", verifyToken, getChats);
 
 router.get("/:id", verifyToken, getChat);
 
-router.post("/", verifyToken, addChat);
+router.post("/", addChat);
 
 router.put("/read/:id", verifyToken, readChat);
 

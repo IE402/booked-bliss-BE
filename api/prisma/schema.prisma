@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = "mongodb://localhost:27017/ie402?replicaSet=rs0"
 }
 
 model Post {
@@ -69,14 +69,22 @@ model SavedPost {
 
   @@unique([userId, postId])
 }
+enum Role {
+  admin
+  user
+  moderator
+}
 
 model User {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
   email      String      @unique
   username   String      @unique
+  fullName   String      @unique
+  phone   String      
   password   String
   avatar     String?
   createdAt  DateTime    @default(now())
+  role       Role     @default(user)  // Thêm role với giá trị mặc định là 'user'
   posts      Post[]
   savedPosts SavedPost[]
   chats      Chat[]      @relation(fields: [chatIDs], references: [id])

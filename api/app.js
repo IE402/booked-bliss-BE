@@ -24,7 +24,7 @@ console.log('FACEBOOK_CLIENT_ID:', process.env.FACEBOOK_CLIENT_ID);
 console.log('FACEBOOK_CLIENT_SECRET:', process.env.FACEBOOK_CLIENT_SECRET);
 console.log('JWT_SECRET:', process.env.JWT_SECRET);
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost'],
+    origin: ['http://localhost:5173', 'http://localhost:5000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],

@@ -2,7 +2,39 @@ create db:
 npx prisma db push
 npx prisma generate
 set up mongo:
+TẠO THU MUC LUU DATA:
+mkdir C:\data\db
+
 1. Nếu MongoDB đang chạy, bạn cần dừng nó trước khi thực hiện bước tiếp theo.
 `net stop/start MongoDB`
 2. `mongod --replSet "rs0" --bind_ip localhost`
 3. `rs.initiate()`
+
+Thoát mongosh hiện tại
+Tìm file cấu hình MongoDB của bạn (thường là mongod.cfg trên Windows, thường nằm ở C:\Program Files\MongoDB\Server\7.0\bin\ hoặc đường dẫn tương tự)
+Mở file này bằng một text editor với quyền Administrator và thêm/sửa cấu hình sau:
+
+yamlCopyreplication:
+   replSetName: "rs0"
+
+Sau đó, bạn cần restart service MongoDB:
+
+Mở Command Prompt với quyền Administrator
+Chạy các lệnh:
+
+
+
+cmdCopynet stop MongoDB
+net start MongoDB
+
+Sau khi service đã restart, mở lại mongosh và thử lại:
+
+javascriptCopyuse admin
+rs.initiate()
+Nếu bạn không tìm thấy file cấu hình, bạn có thể tạo một file mới hoặc thêm flag khi khởi động MongoDB service. Bạn cũng có thể kiểm tra vị trí file cấu hình bằng cách:
+
+Mở Task Manager
+Tìm process mongod.exe
+Xem command line arguments để biết đường dẫn file cấu hình
+
+Bạn cần đảm bảo thực hiện các thao tác này với quyền Administrator để có thể chỉnh sửa cấu hình và restart service.

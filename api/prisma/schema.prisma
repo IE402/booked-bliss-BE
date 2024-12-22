@@ -22,6 +22,7 @@ model Post {
   city       String
   bedroom    Int
   bathroom   Int
+  roomSpace   Int
   latitude   Float
   longitude  Float
   type       Type

@@ -6,7 +6,7 @@ dotenv.config();
 console.log('JWT_SECRETあｓｓｓｓ:', process.env.JWT_SECRET);
 
 export const register = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, fullName,phone, email, password } = req.body;
 
   try {
     // HASH THE PASSWORD
@@ -19,6 +19,8 @@ export const register = async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         username,
+        fullName,
+        phone,
         email,
         password: hashedPassword,
         // createdAt: new Date(Date.now() + 7 * 60 * 60 * 1000),

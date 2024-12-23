@@ -32,6 +32,16 @@ model Post {
   userId     String      @db.ObjectId
   postDetail PostDetail?
   savedPosts SavedPost[]
+  review Review[]
+}
+model Review {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  comment    String
+  star Int 
+  post       Post    @relation(fields: [postId], references: [id])
+  postId     String  @unique @db.ObjectId
+  user       User    @relation(fields: [userId], references: [id], name: "UserReviews")  // Đặt tên quan hệ
+  userId     String  @db.ObjectId
 }
 
 enum Type {
@@ -90,6 +100,7 @@ model User {
   savedPosts SavedPost[]
   chats      Chat[]      @relation(fields: [chatIDs], references: [id])
   chatIDs    String[]    @db.ObjectId
+  reviews  Review[] @relation("UserReviews")
 }
 
 model Chat {

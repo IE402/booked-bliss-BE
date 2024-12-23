@@ -285,24 +285,38 @@ export const updatePost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
     const id = req.params.id;
-    const tokenUserId = req.userId
+    const tokenUserId = req.userId;
 
     try {
+        // Tìm bài viết theo ID
         const post = await prisma.post.findUnique({
-            where: { id }
+            where: { id: id },
         });
 
-        if (post.userId !== tokenUserId) {
-            return res.status(400).json({ message: "Not Authorized!" });
+        if (!post) {
+            return res.status(404).json({ message: "Post not found!" });
         }
 
-        await prisma.post.delete({
-            where: { id },
+        // Kiểm tra quyền sở hữu bài viết
+        if (post.userId !== tokenUserId) {
+            return res.status(403).json({ message: "Not Authorized!" });
+        }
+
+        // Xóa tất cả chi tiết bài viết liên quan
+        await prisma.postDetail.deleteMany({
+            where: { postId: id },
         });
 
-        res.status(200).json({ message: "Post deleted!" });
+        // Xóa bài viết
+        await prisma.post.delete({
+            where: { id: id },
+        });
+
+        res.status(200).json({ message: "Post and its details deleted!" });
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: "Failed to delete posts" });
+        console.error(err);
+        res.status(500).json({ message: "Failed to delete post" });
     }
-}
+};
+
+

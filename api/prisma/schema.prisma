@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb://localhost:27017/ie402?replicaSet=rs0"
+  url      = "mongodb://localhost:27017/ie402_backup?replicaSet=rs0"
 }
 
 model Post {
@@ -33,7 +33,18 @@ model Post {
   postDetail PostDetail?
   savedPosts SavedPost[]
   review Review[]
+  hopDongs      HopDong[]      
+ 
 }
+model HopDong {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  users     User[]    @relation(fields: [userIDs], references: [id])
+  userIDs   String[]  @db.ObjectId 
+  post       Post    @relation(fields: [postId], references: [id])
+  postId     String  @unique @db.ObjectId
+  ngayTao  DateTime @default(now())
+}
+
 model Review {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
   comment    String
@@ -91,6 +102,7 @@ model User {
   email      String      @unique
   username   String      @unique
   fullName   String      @unique
+  CMND String
   phone   String      
   password   String
   avatar     String?
@@ -101,6 +113,8 @@ model User {
   chats      Chat[]      @relation(fields: [chatIDs], references: [id])
   chatIDs    String[]    @db.ObjectId
   reviews  Review[] @relation("UserReviews")
+  hopDongs      HopDong[]      @relation(fields: [hopDongIDs], references: [id])
+  hopDongIDs    String[]    @db.ObjectId
 }
 
 model Chat {

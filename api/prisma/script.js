@@ -24,9 +24,15 @@ async function main() {
   // });
   // console.log(users);
 
-  const posts = await prisma.post.updateMany({
+  // const posts = await prisma.post.updateMany({
+  //   data: {
+  //     roomSpace: 5, // Hoặc 'admin', 'moderator' tùy theo yêu cầu
+  //   },
+  // });
+
+  const posts = await prisma.user.updateMany({
     data: {
-      roomSpace: 5, // Hoặc 'admin', 'moderator' tùy theo yêu cầu
+      CMND: "3131422143", // Hoặc 'admin', 'moderator' tùy theo yêu cầu
     },
   });
   console.log(posts);
